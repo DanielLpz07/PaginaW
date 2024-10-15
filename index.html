@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversión Decimal a Binario IEEE 754</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+            color: #222;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #FFDEE9;
+            outline: none;
+            box-shadow: 0 0 8px rgba(255, 222, 233, 0.4);
+        }
+
+        input[type="button"] {
+            background-color: #FF6F61;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        input[type="button"]:hover {
+            background-color: #FF4C39;
+        }
+
+        #resultado {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            background-color: #f1f1f1;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        .proceso {
+            font-size: 0.9em;
+            color: #444;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <h2>Convertidor Punto flotante IEEE 754</h2>
+        <form>
+            <p>
+                Ingrese número decimal:
+                <input type="number" step="any" id="num" placeholder="Ej. 12.34">
+            </p>
+
+            <input type="button" value="Convertir a Binario" onclick="convertirD()">
+        </form>
+
+        <div id="resultado">Binario IEEE 754: </div>
+        <div class="proceso" id="proceso"></div>
+    </div>
+
+    <script>
+        function convertirD() {
+            let numero = parseFloat(document.getElementById("num").value);
+            if (isNaN(numero)) {
+                document.getElementById("resultado").innerText = "Por favor, ingrese un número válido.";
+                document.getElementById("proceso").innerHTML = "";
+                return;
+            }
+            let binario = convertirBinario(numero);
+            document.getElementById("resultado").innerText = "Binario IEEE 754: " + binario.binarioCompleto;
+            document.getElementById("proceso").innerHTML = `
+                <strong>Proceso de conversión:</strong><br>
+                Signo: ${binario.signo} <br>
+                Exponente: ${binario.exponente} (${binario.exponenteDecimal})<br>
+            `;
+        }
+
+        function convertirBinario(numero) {
+            let buffer = new ArrayBuffer(4); // Buffer de 4 bytes (32 bits)
+            let vistaFloat = new Float32Array(buffer); // Interpretar como flotante
+            vistaFloat[0] = numero; // Asignar el número
+            let vistaEntero = new Uint32Array(buffer); // Interpretar como entero sin signo
+            let binarioCompleto = vistaEntero[0].toString(2).padStart(32, '0'); // Convertir a binario
+            
+            // Descomponer en Signo y Exponente
+            let signo = binarioCompleto[0]; // Primer bit
+            let exponente = binarioCompleto.substring(1, 9); // 8 bits siguientes
+            
+            // Calcular el exponente en decimal
+            let exponenteDecimal = parseInt(exponente, 2) - 127;
+
+            return {
+                binarioCompleto,
+                signo: signo === "0" ? "Positivo (0)" : "Negativo (1)",
+                exponente,
+                exponenteDecimal
+            };
+        }
+    </script>
+
+</body>
+
+</html>
